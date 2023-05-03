@@ -1,19 +1,34 @@
--- To find accidents near my route to make sure to ensure there are none a certain distance from my route
+-- To find a route from A to B with no accidents a 100m from my route
 
--- Create geometry table to represent routes of car accidents 
+-- Create geometry table to represent routes of car accidents. Set SRID to enable geometry view. 
 CREATE TABLE accident_routes AS
 SELECT trafficdata.id,
-       ST_MakeLine(
-           ST_MakePoint(trafficdata.start_lng, trafficdata.start_lat),
-           ST_MakePoint(trafficdata.end_lng, trafficdata.end_lat)
+       ST_SetSRID(
+           ST_MakeLine(
+               ST_MakePoint(trafficdata.start_lng, trafficdata.start_lat),
+               ST_MakePoint(trafficdata.end_lng, trafficdata.end_lat)
+           ),
+           4326
        ) AS geom
 FROM trafficdata;
 
--- Create geometry table of points representative of car accidents
+-- Create geometry table of points representative of car accidents. Set SRID to enable geometry view.
 CREATE TABLE accident_locations AS 
 SELECT trafficdata.id, 
         ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326
         ) AS geompoint
 FROM trafficdata;
 
--- Create geometry to represent my route 
+-- Find city with the most accidents to determine example -> Miami
+SELECT city, COUNT(*) as count
+FROM trafficdata
+GROUP BY city
+ORDER BY count desc
+
+-- Find day with most accidents Miami -> "2021-12-03" 940
+SELECT DATE(trafficdata.start_time), COUNT(*) AS count
+FROM trafficdata
+WHERE DATE(trafficdata.start_time) = DATE(trafficdata.end_time) AND trafficdata.city = 'Miami'
+GROUP BY DATE(start_time)
+ORDER BY count desc;
+

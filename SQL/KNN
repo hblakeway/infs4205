@@ -1,4 +1,4 @@
--- To find a route from A to B with no accidents a 100m from my route
+-- To find surrounding accidents in a 100m radius of my route so that I can allow enough time to travel from A to B
 
 -- Create geometry table to represent routes of car accidents. Set SRID to enable geometry view. 
 CREATE TABLE accident_routes AS
@@ -31,4 +31,10 @@ FROM trafficdata
 WHERE DATE(trafficdata.start_time) = DATE(trafficdata.end_time) AND trafficdata.city = 'Miami'
 GROUP BY DATE(start_time)
 ORDER BY count desc;
+
+-- Starting Point: Morningside Park, 750 NE 55th Terrace, Miami, FL 33137, United States (25.826395906190804, -80.18068247140307)
+-- Ending Point: Coral Gate Park, 1415 SW 32nd Ave, Miami, FL 33145, United States (25.758093721826242, -80.24623615593089)
+-- To find surrounding accidents in a 100m radius of my route so that I can allow enough time to travel from (25.826395906190804, -80.18068247140307) to (25.758093721826242, -80.24623615593089)
+
+-- Get geometry of route 
 

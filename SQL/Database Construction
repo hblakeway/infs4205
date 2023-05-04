@@ -1,0 +1,14 @@
+CREATE TABLE trafficData(ID varchar, Severity integer, Start_Time timestamp, End_Time timestamp, 
+Start_Lat float8, Start_Lng float8, End_Lat float8, End_Lng float8, Distance_mi float8, 
+Description varchar, Number float8, Street varchar, Side char, City varchar, County varchar, S
+tate varchar, Zipcode varchar, Country varchar, Timezone varchar, Airport_Code varchar, 
+Weather_Timestamp timestamp, Temperature_F float8, Wind_Chill_F float8, Humidity_percent float8, 
+Pressure_in float8, Visibility_mi float8, Wind_Direction varchar, Wind_Speed_mph float8, 
+Precipitation_in float8, Weather_Condition varchar, Amenity boolean, Bump boolean, Crossing boolean, 
+Give_Way boolean, Junction boolean, No_Exit boolean, Railway boolean, Roundabout boolean, 
+Station boolean, Stop boolean, Traffic_Calming boolean, Traffic_Signal boolean, Turning_Loop boolean, 
+Sunrise_Sunset varchar, Civil_Twilight varchar, Nautical_Twilight varchar,Astronomical_Twilight varchar)
+
+COPY trafficData
+FROM ‘/Users/heatherblakeway/Desktop/Uni/INFS4205/trafficData/US_Accidents_Dec21_updated.csv’
+DELIMITER ‘,’ CSV HEADER 

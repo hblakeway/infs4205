@@ -1,1 +1,14 @@
 -- To find all accidents occurring in a certain rectangle in a certain timeframe to analyse general traffic behaviour
+-- Set date to be "2021-12-01" to "2021-12-31"
+-- Select Main Miami area as most accidents have occured in Miami city. Analysis is required to determine road designs
+-- potentially causing accidents
+-- 25.794830678174524, -80.21466278230339
+-- 25.757886402225783, -80.1927819906643
+
+SELECT *
+FROM accident_locations
+WHERE DATE(accident_locations.end_time) BETWEEN '2021-12-01' AND '2021-12-31'
+AND ST_Intersects(accident_locations.geompoint, ST_MakeEnvelope(-80.21466278230339, 25.794830678174524, -80.1927819906643 , 25.757886402225783,4326))
+
+
+

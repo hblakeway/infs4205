@@ -1,5 +1,5 @@
 -- To find out what type of road design has the most severe accidents in low visibility to analyse traffic behaviour.
--- Low visibility 0 - 2
+-- Low visibility 0 - 2, Severity = 1 - 4
 
 SELECT DISTINCT severity, visibility_mi, 
 CASE WHEN amenity = TRUE  THEN 'amentity'

@@ -14,7 +14,7 @@ FROM trafficdata;
 
 -- Create geometry table of points representative of car accidents. Set SRID to enable geometry view.
 CREATE TABLE accident_locations AS 
-SELECT trafficdata.id, trafficdata.end_time,
+SELECT trafficdata.id, trafficdata.end_time,trafficdata.city
         ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326
         ) AS geompoint
 FROM trafficdata;

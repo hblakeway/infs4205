@@ -1,36 +1,24 @@
 -- To find nearest accidents between 10:00 - 10:30 so that I evaluate how much time to can allow for travel from A to B
 
--- Create geometry table to represent routes of car accidents. Set SRID to enable geometry view. 
-CREATE TABLE accident_routes AS
-SELECT trafficdata.id,
-       ST_SetSRID(
-           ST_MakeLine(
-               ST_MakePoint(trafficdata.start_lng, trafficdata.start_lat),
-               ST_MakePoint(trafficdata.end_lng, trafficdata.end_lat)
-           ),
-           4326
-       ) AS geom
-FROM trafficdata;
-
 -- Create geometry table of points representative of car accidents. Set SRID to enable geometry view.
 CREATE TABLE accident_locations AS 
-SELECT trafficdata.id, trafficdata.end_time,trafficdata.city
+SELECT trafficdata.id, trafficdata.end_time,trafficdata.city, trafficdata.end_lat, traffic_data.end_lng
         ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326
         ) AS geompoint
 FROM trafficdata;
 
 -- Find city with the most accidents to determine example -> Miami
-SELECT city, COUNT(*) as count
+SELECT city, COUNT(*) AS occurences
 FROM trafficdata
 GROUP BY city
-ORDER BY count desc
+ORDER BY occurences desc
 
--- Find day with most accidents Miami -> "2021-12-03" 940
-SELECT DATE(trafficdata.start_time), COUNT(*) AS count
+-- Find day with most accidents Miami -> "2021-12-03" 947
+SELECT DATE(trafficdata.start_time), COUNT(*) AS occurences
 FROM trafficdata
-WHERE DATE(trafficdata.start_time) = DATE(trafficdata.end_time) AND trafficdata.city = 'Miami'
+WHERE trafficdata.city = 'Miami'
 GROUP BY DATE(start_time)
-ORDER BY count desc;
+ORDER BY occurences desc;
 
 -- Create trajectory (Need to transform coordinates from Google Maps to 4326)
 -- 25.771290292087677 -80.19761676535825, 
@@ -52,7 +40,6 @@ VALUES
     (25.758734130306493, -80.19425499805698, 25.75866165978487, -80.1942549980571), 
     (25.75866165978487, -80.1942549980571, 25.75257666814157, -80.20307497220567), 
     (25.75257666814157, -80.20307497220567, 25.753093943727993, -80.20346825297915);
-
 
 CREATE TABLE route_miami_constructed AS
 SELECT ST_SetSRID(
@@ -78,6 +65,8 @@ SELECT accidents.id, ST_Transform(accidents.geompoint, 4326),
 FROM accident_locations accidents
 WHERE accidents.city = 'Miami' AND accidents.end_time >= '2021-12-03 10:00:00' AND accidents.end_time <= '2021-12-03 10:30:00'
 ORDER BY dist;
+
+
 
 
 

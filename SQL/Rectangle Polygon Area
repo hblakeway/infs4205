@@ -8,7 +8,7 @@
 SELECT *
 FROM accident_locations
 WHERE DATE(accident_locations.end_time) BETWEEN '2021-12-01' AND '2021-12-31'
-AND ST_Intersects(accident_locations.geompoint, ST_MakeEnvelope(-80.21466278230339, 25.794830678174524, -80.1927819906643 , 25.757886402225783,4326))
+AND ST_Intersects(accident_locations.geompoint, ST_MakeEnvelope(-80.21466278230339, 25.794830678174524, -80.1927819906643 , 25.757886402225783,4326));
 
 
 

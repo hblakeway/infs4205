@@ -1,4 +1,4 @@
--- To find nearest accidents between 10:00 - 10:30 so that I evaluate how much time to can allow for travel from A to B
+To find nearest accidents between 10:00 - 10:30 so that I evaluate how much time to can allow for travel from A to B-- 
 
 -- Create geometry table of points representative of car accidents. Set SRID to enable geometry view.
 CREATE TABLE accident_locations AS 

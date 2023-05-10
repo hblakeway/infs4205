@@ -1,28 +1,45 @@
--- To find out what type of road design has the most severe accidents in low visibility to analyse traffic behaviour.
--- Low visibility 0 - 2, Severity = 1 - 4
+-- Find skyline points based on severity, wind speed, visbility, precipatation, humidity and return their associated road_design
 
-SELECT DISTINCT severity, visibility_mi, 
-CASE WHEN amenity = TRUE  THEN 'amentity'
-WHEN bump = TRUE THEN 'bump'
-WHEN crossing = TRUE THEN 'crossing'
-WHEN give_way = TRUE THEN 'give_way'
-WHEN junction = TRUE THEN 'junction'
-WHEN no_exit = TRUE THEN 'no_exit'
-WHEN railway = TRUE THEN 'railway'
-WHEN roundabout = TRUE THEN 'roundabout'
-WHEN station = TRUE THEN 'station'
-WHEN stop = TRUE THEN 'stop'
-WHEN traffic_calming = TRUE THEN 'traffic_calming'
-WHEN traffic_signal = TRUE THEN 'traffic_signal'
-WHEN turning_loop = TRUE THEN'turning_loop'
-ELSE 'No road design recorded.'
-END AS road_design, COUNT(*) AS occurences
-FROM trafficdata
-WHERE severity = 4 AND visibility_mi = 0
-AND (amenity = TRUE 
-OR bump = TRUE OR crossing = TRUE OR give_way = TRUE OR junction = TRUE 
-OR no_exit = TRUE OR railway = TRUE OR roundabout = TRUE OR station = TRUE 
-OR stop = TRUE OR traffic_calming = TRUE OR traffic_signal = TRUE OR turning_loop = TRUE)
-GROUP BY severity, visibility_mi, road_design
+SELECT DISTINCT a.severity, a.wind_speed_mph AS wind_speed, a.precipitation_in AS precipitation, a.visibility_mi AS visibility, a.humidity_percent AS humidity, 
+CASE WHEN a.amenity = TRUE THEN 'amenity' 
+    WHEN a.bump = TRUE THEN 'bump' 
+    WHEN a.crossing = TRUE THEN 'crossing' 
+    WHEN a.give_way = TRUE THEN 'give_way' 
+    WHEN a.junction = TRUE THEN 'junction' 
+    WHEN a.no_exit = TRUE THEN 'no_exit' 
+    WHEN a.railway = TRUE THEN 'railway' 
+    WHEN a.roundabout = TRUE THEN 'roundabout' 
+    WHEN a.station = TRUE THEN 'station' 
+    WHEN a.stop = TRUE THEN 'stop' 
+    WHEN a.traffic_calming = TRUE THEN 'traffic_calming' 
+    WHEN a.traffic_signal = TRUE THEN 'traffic_signal' 
+    WHEN a.turning_loop = TRUE THEN 'turning_loop' 
+    ELSE 'No road design recorded.' 
+    END AS road_design, COUNT(*) AS occurences 
+FROM trafficdata a 
+WHERE (amenity = TRUE 
+    OR bump = TRUE 
+    OR crossing = TRUE 
+    OR give_way = TRUE 
+    OR junction = TRUE 
+    OR no_exit = TRUE 
+    OR railway = TRUE 
+    OR roundabout = TRUE 
+    OR station = TRUE 
+    OR stop = TRUE 
+    OR traffic_calming = TRUE 
+    OR traffic_signal = TRUE 
+    OR turning_loop = TRUE) 
+	AND severity IS NOT NULL AND wind_speed_mph IS NOT NULL AND precipitation_in IS NOT NULL AND visibility_mi IS NOT NULL AND humidity_percent IS NOT NULL 
+AND NOT EXISTS (
+    SELECT 1 
+    FROM trafficdata b 
+    WHERE (b.severity > a.severity AND b.wind_speed_mph >= a.wind_speed_mph AND b.visibility_mi >= a.visibility_mi AND b.precipitation_in <= a.precipitation_in AND b.humidity_percent <= a.humidity_percent) OR 
+          (b.severity >= a.severity AND b.wind_speed_mph > a.wind_speed_mph AND b.visibility_mi >= a.visibility_mi AND b.precipitation_in <= a.precipitation_in AND b.humidity_percent <= a.humidity_percent) OR 
+          (b.severity >= a.severity AND b.wind_speed_mph >= a.wind_speed_mph AND b.visibility_mi > a.visibility_mi AND b.precipitation_in <= a.precipitation_in AND b.humidity_percent <= a.humidity_percent) OR 
+          (b.severity >= a.severity  AND b.wind_speed_mph >= a.wind_speed_mph AND b.visibility_mi >= a.visibility_mi AND b.precipitation_in < a.precipitation_in AND b.humidity_percent <= a.humidity_percent) OR 
+          (b.severity >= a.severity AND b.wind_speed_mph >= a.wind_speed_mph AND b.visibility_mi >= a.visibility_mi AND b.precipitation_in <= a.precipitation_in AND b.humidity_percent < a.humidity_percent) 
+) 
+GROUP BY severity, visibility_mi, road_design, wind_speed_mph, precipitation_in, humidity_percent 
 ORDER BY occurences DESC;
 

@@ -1,0 +1,33 @@
+-- An investigator wants to analyse the latest accidents. Find all accidents on a date 500 m from the police station. 
+
+-- Find which city had the most accidents on one day : Miami, 2021-01-26, 173
+SELECT DISTINCT accident_locations.city, DATE(start_time), COUNT(*) AS occurences
+FROM accident_locations 
+GROUP BY accident_locations.city, start_time
+ORDER BY occurences DESC;
+
+-- Visual all relevant accidents 
+SELECT * 
+FROM accident_locations
+WHERE city = 'Miami' AND DATE(start_time) = '2021-01-26';
+
+-- Harvensine Formula to transform from euclidian to great circle:
+-- https://stackoverflow.com/questions/27708490/haversine-formula-definition-for-sql
+-- ( 3959 * acos( cos( radians(Lat1) ) * cos( radians( Lat2 ) ) * cos( radians(Lng2) - radians(Lng1) ) + sin( radians(Lat1) ) * sin( radians(Lat2))))
+SELECT id, end_lat, end_lng, dist
+FROM ( SELECT accidents.id, accidents.end_lat, accidents.end_lng,(3959 * acos(cos(radians(43.029580131264126)) * cos(radians(accidents.end_lat)) * cos(radians(accidents.end_lng) - radians(-88.24194066974728)) + sin(radians(43.029580131264126)) * sin(radians(accidents.end_lat)))) AS dist
+    FROM accident_locations accidents
+    WHERE accidents.city = 'Miami' AND DATE(start_time) = '2021-01-26'
+) AS require
+WHERE DIST < 1270
+ORDER BY dist ASC;
+
+
+
+
+
+
+
+
+
+

@@ -5,10 +5,9 @@
 -- 25.794830678174524, -80.21466278230339
 -- 25.757886402225783, -80.1927819906643
 
-SELECT *
-FROM accident_locations
-WHERE DATE(accident_locations.end_time) BETWEEN '2021-12-01' AND '2021-12-31'
-AND ST_Intersects(accident_locations.geompoint, ST_MakeEnvelope(-80.21466278230339, 25.794830678174524, -80.1927819906643 , 25.757886402225783,4326));
 
-
-
+SELECT trafficdata.id, trafficdata.start_time,trafficdata.city, trafficdata.end_lat, trafficdata.end_lng,
+        ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326) AS geompoint
+FROM trafficdata
+WHERE DATE(trafficdata.start_time) BETWEEN '2021-12-01' AND '2021-12-31'
+AND ST_Intersects(ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326), ST_MakeEnvelope(-80.21466278230339, 25.794830678174524, -80.1927819906643 , 25.757886402225783,4326));

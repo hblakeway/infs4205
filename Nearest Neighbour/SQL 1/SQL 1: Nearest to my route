@@ -2,7 +2,7 @@
 
 -- Create geometry table of points representative of car accidents. Set SRID to enable geometry view.
 CREATE TABLE accident_locations AS 
-SELECT trafficdata.id, trafficdata.end_time,trafficdata.city, trafficdata.end_lat, traffic_data.end_lng
+SELECT trafficdata.id, trafficdata.start_time,trafficdata.city, trafficdata.end_lat, traffic_data.end_lng
         ST_SetSRID(ST_Point(trafficdata.end_lng, trafficdata.end_lat), 4326
         ) AS geompoint
 FROM trafficdata;
@@ -63,7 +63,7 @@ FROM route_miami_constructed;
 SELECT accidents.id, ST_Transform(accidents.geompoint, 4326),
   accidents.geompoint <-> 'SRID=4326;MULTILINESTRING((-80.19761676535825 25.771290292087677,-80.19725496679648 25.76149321999472),(-80.19725496679648 25.76149321999472,-80.19898090592761 25.761480454141047),(-80.19898090592761 25.761480454141047,-80.19892592064136 25.761403757947782),(-80.19892592064136 25.761403757947782,-80.19425499805698 25.758734130306493),(-80.19425499805698 25.758734130306493,-80.1942549980571 25.75866165978487),(-80.1942549980571 25.75866165978487,-80.20307497220567 25.75257666814157),(-80.20307497220567 25.75257666814157,-80.20346825297915 25.753093943727993))'::geometry AS dist
 FROM accident_locations accidents
-WHERE accidents.city = 'Miami' AND accidents.end_time >= '2021-12-03 10:00:00' AND accidents.end_time <= '2021-12-03 10:30:00'
+WHERE accidents.city = 'Miami' AND accidents.start_time >= '2021-12-03 10:00:00' AND accidents.start_time <= '2021-12-03 10:30:00'
 ORDER BY dist;
 
 

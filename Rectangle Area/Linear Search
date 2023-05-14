@@ -1,0 +1,70 @@
+from datetime import datetime
+import csv
+import time
+
+start = time.time()
+us_accidents_list = []
+
+
+# Represent accident location
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+# Read CSV
+with open('/Users/heatherblakeway/Desktop/Uni/INFS4205/trafficData/US_Accidents_Dec21_updated.csv',
+          'r') as us_accidents:
+    csv_reader = csv.reader(us_accidents)
+    next(csv_reader)
+
+    for row in csv_reader:
+        # Date Column
+        end_time = row[3]
+        end_date = datetime.strptime(end_time[:19], '%Y-%m-%d %H:%M:%S').date()
+
+        # Lat and Long Columns
+        end_lat = float(row[6])
+        end_lng = float(row[7])
+        accident_id = row[0]
+
+        # 2021 December
+        beginning_date = '2021-12-01'
+        ending_date = '2021-12-31'
+        start_timeframe = datetime.strptime(beginning_date, '%Y-%m-%d').date()
+        end_timeframe = datetime.strptime(ending_date, '%Y-%m-%d').date()
+
+        # Points representing rectangle
+        x_min = -80.21466278230339
+        y_min = 25.757886402225783
+        x_max = -80.1927819906643
+        y_max = 25.794830678174524
+
+        x_coord = float((x_min + x_max) / 2)
+        y_coord = float((y_min + y_max) / 2)
+
+        center = Point(x_coord, y_coord)
+        width = (x_max - x_min) / 2
+        height = (y_max - y_min) / 2
+
+        # Rectangle bounds
+        west = center.x - width
+        east = center.x + width
+        north = center.y - height
+        south = center.y + height
+
+        # If accident is in timeframe, add accident to array
+        if start_timeframe <= end_date <= end_timeframe:
+            if west <= end_lng < east and north <= end_lat < south:
+                us_accidents_list.append([accident_id, end_lat, end_lng])
+
+    count_rows = 0
+    for i in us_accidents_list:
+        print(f"{i}")
+        count_rows += 1
+
+end = time.time()
+
+print("Time taken =", (end - start), "seconds")
+print("The number of accidents =", count_rows)

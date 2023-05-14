@@ -1,0 +1,149 @@
+import pandas
+from datetime import datetime
+import time
+
+start = time.time()
+
+# Reference Quad Tree Structure
+# https://www.youtube.com/watch?v=RKODYaueSvw&ab_channel=HappyCoding
+
+
+# Represent accident location
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+# Represent rectangle we want to find all points in
+
+# Points representing rectangle
+# 25.794830678174524, -80.21466278230339
+# 25.757886402225783, -80.1927819906643
+
+# Mid Point
+# 25.77636, -80.2037
+
+class Rectangle:
+    def __init__(self, center, width, height):
+        self.width = width
+        self.height = height
+        self.center = center
+
+        self.w = center.x - width
+        self.e = center.x + width
+        self.n = center.y - height
+        self.s = center.y + height
+
+    # Check if point is in rectangle
+    # (-80.21466278230339, 25.757886402225783, -80.1927819906643, 25.794830678174524)
+    def in_rectangle(self, accident):
+        # -80.21466278230339
+        return self.w <= accident.x < self.e and self.n <= accident.y < self.s
+
+
+# Quadtree to store accidents
+class Quadtree:
+    def __init__(self, border, size=4):
+        self.border = border
+        self.size = size
+        self.accidents = []
+        self.divided = False
+        self.count = 0
+
+    def insert_accident(self, accident):
+        # Check if accident is in the rectangle
+        if not self.border.in_rectangle(accident):
+            return False
+
+        # Insert point as long as length is less than capacity
+        if len(self.accidents) < self.size:
+            self.accidents.append(accident)
+            self.count += 1
+            return True
+
+        if not self.divided:
+            self.split()
+
+        if self.nw.insert_accident(accident):
+            self.count += 1
+            return True
+        elif self.ne.insert_accident(accident):
+            self.count += 1
+            return True
+        elif self.sw.insert_accident(accident):
+            self.count += 1
+            return True
+        elif self.se.insert_accident(accident):
+            self.count += 1
+            return True
+
+        # Should never reach
+        return False
+
+    def split(self):
+        x_center_coord = self.border.center.x
+        y_center_coord = self.border.center.y
+        split_width = self.border.width / 2
+        split_height = self.border.height / 2
+
+        # Set new center
+        nw = Rectangle( Point(x_center_coord - split_width, y_center_coord - split_height), split_width, split_height, )
+        self.nw = Quadtree(nw)
+
+        ne = Rectangle(Point(x_center_coord + split_width, y_center_coord - split_height), split_width, split_height)
+        self.ne = Quadtree(ne)
+
+        sw = Rectangle(Point(x_center_coord - split_width, y_center_coord + split_height), split_width, split_height)
+        self.sw = Quadtree(sw)
+
+        se = Rectangle(Point(x_center_coord + split_width, y_center_coord + split_height), split_width, split_height)
+        self.se = Quadtree(se)
+
+        self.divided = True
+
+    @staticmethod
+    def read_csv(us_accidents, size=4):
+        data = pandas.read_csv(us_accidents)
+
+        x_min = -80.21466278230339
+        y_min = 25.757886402225783
+        x_max = -80.1927819906643
+        y_max = 25.794830678174524
+
+        x_coord = float((x_min + x_max) / 2)
+        y_coord = float((y_min + y_max) / 2)
+
+        center = Point(x_coord, y_coord)
+        width = (x_max - x_min) / 2
+        height = (y_max - y_min) / 2
+
+        rectangle = Rectangle(center, width, height)
+        quad_tree = Quadtree(rectangle, size)
+
+        for _, row in data.iterrows():
+
+            # Date Column
+            end_time = row['Start_Time']
+            end_date = datetime.strptime(end_time[:19], '%Y-%m-%d %H:%M:%S').date()
+
+            # 2021 December
+            start_timeframe = datetime.strptime('2021-12-01', '%Y-%m-%d').date()
+            end_timeframe = datetime.strptime('2021-12-31', '%Y-%m-%d').date()
+
+            if start_timeframe <= end_date <= end_timeframe:
+                end_lat = float(row['End_Lat'])
+                end_lng = float(row['End_Lng'])
+                accident = Point(end_lng, end_lat)
+                quad_tree.insert_accident(accident)
+
+        return quad_tree
+
+
+rectangle_quadtree = Quadtree.read_csv(
+    '/Users/heatherblakeway/Desktop/Uni/INFS4205/trafficData/US_Accidents_Dec21_updated.csv')
+
+end = time.time()
+
+print("Time taken =", (end-start) , "seconds")
+print("The number of accidents =", rectangle_quadtree.count)

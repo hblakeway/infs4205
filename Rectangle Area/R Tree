@@ -1,0 +1,79 @@
+import pandas
+from shapely.geometry import Point
+from rtree import index
+from datetime import datetime
+import csv
+
+import time
+
+start = time.time()
+
+# Use r tree as it is more efficient for large datasets and no further manipulation of the data is necessary
+# Create R tree index
+
+# Reference: https://rtree.readthedocs.io/en/latest/tutorial.html 
+
+idx = index.Index()
+
+# Read CSV
+with open('/Users/heatherblakeway/Desktop/Uni/INFS4205/trafficData/US_Accidents_Dec21_updated.csv', 'r') as us_accidents:
+    csv_reader = csv.reader(us_accidents)
+    next(csv_reader)
+
+    for row in csv_reader:
+
+        # Date Column
+        end_time = row[3]
+        end_date = datetime.strptime(end_time[:19], '%Y-%m-%d %H:%M:%S').date()
+
+        # Lat and Long Columns
+        end_lat = float(row[6])
+        end_lng = float(row[7])
+
+        id = row[0]
+        int_id = int(id[2:7])
+
+        # 2021 December
+        start_timeframe = datetime.strptime('2021-12-01', '%Y-%m-%d').date()
+        end_timeframe = datetime.strptime('2021-12-31', '%Y-%m-%d').date()
+
+        # If accident is in timeframe, add accident to r tree as a point
+        if start_timeframe <= end_date <= end_timeframe:
+            accident = Point(end_lng, end_lat)
+            idx.insert(int_id, accident.bounds)
+
+
+# Points representing rectangle
+# -- 25.794830678174524, -80.21466278230339
+# -- 25.757886402225783, -80.1927819906643
+
+rectangle_accidents = list(idx.intersection((-80.21466278230339, 25.757886402225783, -80.1927819906643, 25.794830678174524)))
+
+count_rows = 0;
+for i in rectangle_accidents:
+    print(f"{i}")
+    count_rows += 1
+
+end = time.time()
+
+print("Time taken =", (end-start) , "seconds")
+print("The number of accidents =", count_rows)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
